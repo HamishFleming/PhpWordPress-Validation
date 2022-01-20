@@ -32,7 +32,7 @@ class CodeQualityTool extends Application
         $files = $this->extractCommitedFiles();
 
         $output->writeln('<info>Check composer</info>');
-        //$this->checkComposer($files);
+        $this->checkComposer($files);
 
         $output->writeln('<info>Running PHPLint</info>');
         if (!$this->phpLint($files)) {
@@ -50,6 +50,7 @@ class CodeQualityTool extends Application
         }
 
         $output->writeln('<info>Good job dude!</info>');
+            //throw new Exception(sprintf('NO COMMIT'));
     }
 
     private function checkComposer($files)
@@ -155,17 +156,18 @@ class CodeQualityTool extends Application
     {
         $succeed = true;
         $needle = self::PHP_FILES_IN_SRC;
-
         foreach ($files as $file) {
             if (!preg_match($needle, $file)) {
-                continue;
+                //continue;
             }
 
-            $phpCsFixer = new Process(array('php', __DIR__ . '/vendor/bin/phpcs', '--encoding=utf-8', '--standard=PSR2', $file));
+            //$phpCsFixer = new Process(array('php', __DIR__ . '/vendor/bin/phpcs', '--encoding=utf-8', '--standard=PSR2', $file));
+            $phpCsFixer = new Process(array('phpcs.phar', '--encoding=utf-8', '--standard=PSR2', $file));
             $phpCsFixer->setWorkingDirectory(getcwd());
             $phpCsFixer->run();
 
             if (!$phpCsFixer->isSuccessful()) {
+                //$this->output->writeln($phpCsFixer->getOutput());
                 $this->output->writeln(sprintf('<error>%s</error>', trim($phpCsFixer->getOutput())));
 
                 if ($succeed) {
